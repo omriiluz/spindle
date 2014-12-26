@@ -32,7 +32,7 @@ name := "Spindle"
 
 version := "1.0"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 fork in run := true
 
@@ -45,8 +45,8 @@ libraryDependencies ++= Seq(
   // Spark dependencies.
   // Mark as provided if distributing to clusters.
   // Don't use 'provided' if running the program locally with `sbt run`.
-  "org.apache.spark" %% "spark-core" % "1.0.0" % "provided",
-  "org.apache.spark" %% "spark-sql" % "1.0.0" % "provided",
+  "org.apache.spark" %% "spark-core" % "1.2.0" % "provided",
+  "org.apache.spark" %% "spark-sql" % "1.2.0" % "provided",
   // "org.slf4j" % "slf4j-simple" % "1.7.7", // Logging.
   "org.json4s" %% "json4s-native" % "3.2.10", // JSON parsing.
   "org.apache.hadoop" % "hadoop-client" % "2.4.0" % "provided" excludeAll(
@@ -57,15 +57,20 @@ libraryDependencies ++= Seq(
     ExclusionRule(organization = "org.ow2.asm"),
     ExclusionRule(organization = "asm")
   ),
-  "io.spray" % "spray-can" % "1.2.1",
-  "io.spray" % "spray-routing" % "1.2.1",
-  "com.typesafe.akka" %% "akka-actor" % "2.2.3",
-  "com.typesafe.akka" %% "akka-slf4j" % "2.2.3",
-  "org.apache.thrift" % "libthrift" % "0.9.1",
+  "io.spray" % "spray-can" % "1.3.1",
+  "io.spray" % "spray-routing" % "1.3.1",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.4",
+  "com.typesafe.akka" %% "akka-slf4j" % "2.3.4" excludeAll(
+    ExclusionRule(organization = "org.slf4j")
+  ),
+  "org.apache.thrift" % "libthrift" % "0.9.2",
   "com.twitter" % "parquet-thrift" % "1.5.0",
   "com.google.guava" % "guava" % "17.0",
   "org.joda" % "joda-convert" % "1.6",
+  "org.slf4j" % "slf4j-api" % "1.7.2",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "1.1.0",
   "joda-time" % "joda-time" % "2.3"
+
 )
 
 resolvers ++= Seq(
@@ -78,3 +83,11 @@ resolvers ++= Seq(
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
 seq(ThriftPlugin.thriftSettings: _*)
+mergeStrategy in assembly := {
+  case m if m.toLowerCase.endsWith("manifest.mf")          => MergeStrategy.discard
+  case m if m.toLowerCase.matches("meta-inf.*\\.sf$")      => MergeStrategy.discard
+  case "log4j.properties"                                  => MergeStrategy.discard
+  case m if m.toLowerCase.startsWith("meta-inf/services/") => MergeStrategy.filterDistinctLines
+  case "reference.conf"                                    => MergeStrategy.concat
+  case _                                                   => MergeStrategy.first
+}

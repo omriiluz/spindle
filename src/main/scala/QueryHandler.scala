@@ -73,8 +73,8 @@ class MyRegistrator extends KryoRegistrator {
 import scala.collection.JavaConversions._
 
 object QueryHandler {
-  var cores = 143
-  var memory = "21g"
+  var cores = 1
+  var memory = "256m"
   var sc = createSparkContext(memory, cores)
   var adhocHandler = new AdhocQueryHandler(sc)
   var lastCachedQuery = ""
@@ -170,14 +170,15 @@ object QueryHandler {
   def createSparkContext(memory: String, maxCores: Int): SparkContext = {
     val conf = new SparkConf()
       .setAppName("Spindle")
-      .setMaster("spark://spark_master_address:7077")
-      .setSparkHome("/usr/lib/spark")
-      .setJars(Seq("/tmp/Spindle.jar"))
+      .setMaster("spark://sparkmaster:7077")
+      //.setSparkHome("/usr/lib/spark")
+      //.setJars(Seq("/tmp/Spindle.jar"))
       .set("spark.executor.memory", memory)
       .set("spark.cores.max", maxCores.toString)
       .set("spark.kryo.registrator", "com.adobe.MyRegistrator")
       .set("spark.default.parallelism", (maxCores).toString)
       .set("spark.scheduling.mode", "FAIR")
+      .set("spark.cassandra.connection.host", "cass")
     new SparkContext(conf)
   }
 

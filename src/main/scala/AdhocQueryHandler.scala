@@ -22,6 +22,7 @@ package com.adobe
 import org.apache.spark.{SparkConf,SparkContext,SparkEnv}
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
+import com.datastax.spark.connector._
 
 // Java.
 import java.io.{StringWriter,PrintWriter}
@@ -32,7 +33,7 @@ class AdhocQueryHandler(sc: SparkContext) {
 
   def handle(sqlQuery: String, numResults: Int, days: Seq[String]): String = {
     try {
-      val separatedData = days.map{ day =>
+      /* val separatedData = days.map{ day =>
         val dayData = sqlContext.parquetFile(
           "hdfs://hdfs_master_address:8020/spindle-sample-data/" + day
         )
@@ -40,7 +41,20 @@ class AdhocQueryHandler(sc: SparkContext) {
         dayData
       }
       val allData = separatedData.reduce(_.unionAll(_))
-      allData.registerAsTable("all_data")
+      allData.registerAsTable("all_data") */
+      case class Req(id: java.util.UUID, ts: java.util.UUID, url: String, referrer: String) extends serializable
+      //val rdd = sc.cassandraTable[(String, String, String, String)]("test", "requests")
+      val requestsRDD = sc.cassandraTable[(String,String,String,String)]("test", "requests")
+      // The schema is encoded in a string
+      val schemaString = "id ts url referrer"
+      // Import Spark SQL data types and Row.
+      import org.apache.spark.sql._
+      // Generate the schema based on the string of schema
+      val schema =
+        StructType(
+          schemaString.split(" ").map(fieldName => StructField(fieldName, StringType, true)))
+          val requestsSchemaRDD = sqlContext.applySchema(requestsRDD, schema)
+          requestsSchemaRDD.registerTempTable("requests")
       val unescapedQuery = sqlQuery.replace(".EQ.","=")
         .replace(".LT.","<").replace(".GT.",">")
       sqlContext.sql(unescapedQuery).take(numResults).mkString("\n")
