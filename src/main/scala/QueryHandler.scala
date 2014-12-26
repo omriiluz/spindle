@@ -73,8 +73,8 @@ class MyRegistrator extends KryoRegistrator {
 import scala.collection.JavaConversions._
 
 object QueryHandler {
-  var cores = 1
-  var memory = "256m"
+  var cores = 12
+  var memory = "1024m"
   var sc = createSparkContext(memory, cores)
   var adhocHandler = new AdhocQueryHandler(sc)
   var lastCachedQuery = ""
