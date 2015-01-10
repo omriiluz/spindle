@@ -68,7 +68,7 @@ libraryDependencies ++= Seq(
   "com.google.guava" % "guava" % "17.0",
   "org.joda" % "joda-convert" % "1.6",
   "org.slf4j" % "slf4j-api" % "1.7.2",
-  "com.datastax.spark" %% "spark-cassandra-connector" % "1.1.0",
+  //"com.datastax.spark" %% "spark-cassandra-connector" % "1.1.0",
   "joda-time" % "joda-time" % "2.3"
 
 )
