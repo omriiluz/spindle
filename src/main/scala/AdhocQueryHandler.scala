@@ -32,7 +32,7 @@ class AdhocQueryHandler(sc: SparkContext) {
   //val sqlContext = new org.apache.spark.sql.SQLContext(sc)
   import sqlContext.createSchemaRDD
   val sqlContext = new CassandraSQLContext(sc)
-  sqlContext.setKeyspace("test")
+  sqlContext.setKeyspace("px")
 
   def handle(sqlQuery: String, numResults: Int, days: Seq[String]): String = {
     try {
